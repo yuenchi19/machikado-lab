@@ -2,14 +2,19 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+interface FormState {
+  storeName: string; contactName: string; phone: string; email: string;
+  prefecture: string; businessType: string; concern: string; message: string;
+}
+
 export default function Home() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     storeName: "", contactName: "", phone: "", email: "",
     prefecture: "", businessType: "", concern: "", message: "",
   });
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
     const { error } = await supabase.from("inquiries").insert([{
@@ -19,8 +24,14 @@ export default function Home() {
       message: form.message, created_at: new Date().toISOString(),
     }]);
     if (error) { setStatus("error"); }
-    else { setStatus("success"); setForm({ storeName: "", contactName: "", phone: "", email: "", prefecture: "", businessType: "", concern: "", message: "" }); }
+    else {
+      setStatus("success");
+      setForm({ storeName: "", contactName: "", phone: "", email: "", prefecture: "", businessType: "", concern: "", message: "" });
+    }
   };
+
+  const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm(p => ({...p, [key]: e.target.value}));
 
   return (
     <main className="min-h-screen bg-white">
@@ -37,7 +48,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-12">選ばれる3つの理由</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {[{icon:"🤖",title:"AIが自動化",desc:"MEO・SNS・ブログをAIが代わりに更新。オーナーの作業は月2時間以内。"},{icon:"📍",title:"地域密着",desc:"地方の中小店舗・介護施設に特化。地域特性を理解した集客戦略を提供。"},{icon:"💴",title:"月額定額制",desc:"初期費用0円。成果に応じた透明な料金体系。解約はいつでも可能。"}].map((f) => (
+            {([{icon:"🤖",title:"AIが自動化",desc:"MEO・SNS・ブログをAIが代わりに更新。オーナーの作業は月2時間以内。"},{icon:"📍",title:"地域密着",desc:"地方の中小店舗・介護施設に特化。地域特性を理解した集客戦略を提供。"},{icon:"💴",title:"月額定額制",desc:"初期費用0円。成果に応じた透明な料金体系。解約はいつでも可能。"}] as const).map((f) => (
               <div key={f.title} className="bg-white rounded-2xl p-6 shadow-sm text-center">
                 <div className="text-4xl mb-4">{f.icon}</div>
                 <h3 className="font-bold text-gray-800 mb-2">{f.title}</h3>
@@ -60,19 +71,19 @@ export default function Home() {
           ) : (
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-sm space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">店舗・施設名 <span className="text-red-500">*</span></label><input required value={form.storeName} onChange={e => setForm(p => ({...p, storeName: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：さくら整骨院" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">ご担当者名 <span className="text-red-500">*</span></label><input required value={form.contactName} onChange={e => setForm(p => ({...p, contactName: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：山田 太郎" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">店舗・施設名 <span className="text-red-500">*</span></label><input required value={form.storeName} onChange={set("storeName")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：さくら整骨院" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">ご担当者名 <span className="text-red-500">*</span></label><input required value={form.contactName} onChange={set("contactName")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：山田 太郎" /></div>
               </div>
               <div className="grid md:grid-cols-2 gap-5">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">電話番号 <span className="text-red-500">*</span></label><input required type="tel" value={form.phone} onChange={e => setForm(p => ({...p, phone: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：090-1234-5678" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label><input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：info@example.com" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">電話番号 <span className="text-red-500">*</span></label><input required type="tel" value={form.phone} onChange={set("phone")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：090-1234-5678" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label><input type="email" value={form.email} onChange={set("email")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：info@example.com" /></div>
               </div>
               <div className="grid md:grid-cols-2 gap-5">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">都道府県 <span className="text-red-500">*</span></label><input required value={form.prefecture} onChange={e => setForm(p => ({...p, prefecture: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：茨城県" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">業種</label><select value={form.businessType} onChange={e => setForm(p => ({...p, businessType: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white"><option value="">選択してください</option><option>接骨院・整骨院</option><option>整体院</option><option>美容院・美容室</option><option>ネイルサロン</option><option>介護・デイサービス</option><option>飲食店</option><option>その他</option></select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">都道府県 <span className="text-red-500">*</span></label><input required value={form.prefecture} onChange={set("prefecture")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="例：茨城県" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">業種</label><select value={form.businessType} onChange={set("businessType")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white"><option value="">選択してください</option><option>接骨院・整骨院</option><option>整体院</option><option>美容院・美容室</option><option>ネイルサロン</option><option>介護・デイサービス</option><option>飲食店</option><option>その他</option></select></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">集客のお悩み</label><select value={form.concern} onChange={e => setForm(p => ({...p, concern: e.target.value}))} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white"><option value="">選択してください</option><option>新規顧客が増えない</option><option>Googleマップに表示されない</option><option>SNSを更新する時間がない</option><option>ホームページからの問い合わせがない</option><option>リピーターが少ない</option><option>その他</option></select></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">その他ご要望・ご質問</label><textarea value={form.message} onChange={e => setForm(p => ({...p, message: e.target.value}))} rows={4} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="現在の集客状況・ご要望などをご自由にお書きください" /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">集客のお悩み</label><select value={form.concern} onChange={set("concern")} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white"><option value="">選択してください</option><option>新規顧客が増えない</option><option>Googleマップに表示されない</option><option>SNSを更新する時間がない</option><option>ホームページからの問い合わせがない</option><option>リピーターが少ない</option><option>その他</option></select></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">その他ご要望・ご質問</label><textarea value={form.message} onChange={set("message")} rows={4} className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="現在の集客状況・ご要望などをご自由にお書きください" /></div>
               {status === "error" && <p className="text-red-600 text-sm">送信に失敗しました。時間をおいて再度お試しください。</p>}
               <button type="submit" disabled={status === "loading"} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-4 rounded-xl text-lg transition">{status === "loading" ? "送信中..." : "無料ヒアリングを申し込む"}</button>
               <p className="text-xs text-gray-500 text-center">個人情報は適切に管理し、サービス提供目的以外には使用しません。</p>
