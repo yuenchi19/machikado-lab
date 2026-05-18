@@ -143,8 +143,7 @@ export default function Home() {
           </h1>
 
           <p style={{ color: "#9ca3af", fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)", lineHeight: 1.9, maxWidth: "540px", marginBottom: "3rem" }}>
-            MEO対策・SNS運用・AIチャットボットを月額定f!�mで仠きとクープ。
-             <br />
+            MEO対策・SNS運用・AIチャットボットを月額定額で丸ごとサポート。<br />
             地方の店舗・施設が、都市部と同じ集客力を手に入れる。
           </p>
 
@@ -333,7 +332,7 @@ export default function Home() {
                 <textarea value={form.message} onChange={e => setForm(p => ({...p, message: e.target.value}))} rows={4} style={{ ...inputStyle, resize: "vertical" as const }} placeholder="現在の集客状況・ご要望などをご自由にお書きください" />
               </div>
               {status === "error" && (
-                <p style={{ color: "#f87171", fontSize: "0.875rem" }}>送信に失敗しました。時間をおあて再度お試しください。</p>
+                <p style={{ color: "#f87171", fontSize: "0.875rem" }}>送信に失敗しました。時間をおいて再度お試しください。</p>
               )}
               <button type="submit" disabled={status === "loading"} style={{ background: status === "loading" ? "#15803d" : G, color: "#fff", fontWeight: 700, fontSize: "1rem", padding: "1rem", borderRadius: "10px", border: "none", cursor: status === "loading" ? "not-allowed" : "pointer", width: "100%", letterSpacing: "0.02em" }}>
                 {status === "loading" ? "送信中..." : "無料ヒアリングを申し込む →"}
